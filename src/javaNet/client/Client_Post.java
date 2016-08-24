@@ -23,23 +23,23 @@ public class Client_Post {
 		// TODO Auto-generated method stub
 		String url ="http://127.0.0.1:8080/server/comment/save";
 		String file1 ="/Users/huxiaoning/Downloads/750x562-3.jpg";
-		String file2 ="/Users/huxiaoning/Downloads/750x562－1.JPG";
-		Map<String, Object> params = new HashMap<String, Object>();
+		String file2 ="/Users/huxiaoning/Downloads/ewew333.png";
+		Map<String, Object> params = new HashMap<>();
 		params.put("userId", "efc132507b8445f585ba3d58071a21a0");
 		params.put("sceneryId", "2");
 		params.put("commentTags", "2,3");
 		params.put("starNum",4);
 		params.put("content", "555555555555");
-		Map<String,File>  files = new HashMap<>();
-		files.put("file1", new File(file1));
-//		files.put("file2", new File(file2));
+		Map<String,String>  files = new HashMap<>();
+		files.put("file1", file1);
+		files.put("file2",file2);
 		post(url,params,files);
 		
 		
 
 	}
 	
-	public static String post(String url, Map<String, Object> params, Map<String, File> files)
+	public static String post(String url, Map<String, Object> params, Map<String, String> files)
             throws IOException {
         String BOUNDARY = java.util.UUID.randomUUID().toString();
         String PREFIX = "--", LINEND = "\r\n";
@@ -78,29 +78,28 @@ public class Client_Post {
         outStream.write(sb.toString().getBytes());
         // 发送文件数据
         if (files != null)
-            for (Map.Entry<String, File> file : files.entrySet()) {
+            for (Map.Entry<String, String> filemap : files.entrySet()) {
                 StringBuilder sb1 = new StringBuilder();
                 sb1.append(PREFIX);
                 sb1.append(BOUNDARY);
                 sb1.append(LINEND);
-                sb1.append("Content-Disposition: form-data; name=\"uploadfile\"; filename=\""
-                        + file.getValue().getName() + "\"" + LINEND);
+                File file = new File(filemap.getValue());
+                sb1.append("Content-Disposition: form-data; name=\"" + file.getName() + "\"; filename=\"" + file.getName() + "\"" + LINEND);
                 sb1.append("Content-Type: application/octet-stream; charset=" + CHARSET + LINEND);
                 sb1.append(LINEND);
-                outStream.write(sb1.toString().getBytes(CHARSET));
-
-
-                InputStream is = new FileInputStream(file.getValue());
+                outStream.write(sb1.toString().getBytes());
+                InputStream is = new FileInputStream(file);
                 byte[] buffer = new byte[2048];
                 int len = 0;
                 while ((len = is.read(buffer)) != -1) {
                     outStream.write(buffer, 0, len);
                 }
                 is.close();
-                outStream.write(LINEND.getBytes(CHARSET));
+                outStream.write(LINEND.getBytes());
             }
+        
         // 请求结束标志
-        byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINEND).getBytes(CHARSET);
+        byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINEND).getBytes();
         outStream.write(end_data);
         outStream.flush();
         // 得到响应码
@@ -117,5 +116,7 @@ public class Client_Post {
         conn.disconnect();
         return sb2.toString();
 	}
+	
+	
 	
 }
